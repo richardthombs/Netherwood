@@ -1,5 +1,5 @@
 ﻿using UnityEngine;
-using System.Collections;
+using System.Collections.Generic;
 
 [System.Serializable]
 public class Stomach
@@ -164,7 +164,12 @@ public class Reproduction
         if (Sex != Sex.Asexual && candidate.Sex == Sex.Asexual) return false;
         if (Sex == candidate.Sex) return false;
 
-        return (SpeciesMatch(Species, candidate.Species, 0.1f));
+        return SpeciesMatch(Species, candidate.Species, 0.1f);
+    }
+
+    public bool IsSameSpecies(Mobile candidate)
+    {
+        return SpeciesMatch(Species, candidate.Reproduction.Species, 0.1f);
     }
 
     static bool SpeciesMatch(Color s1, Color s2, float tolerance)
@@ -204,6 +209,8 @@ public class Mobile : MonoBehaviour
 
     public GameObject LastFood;
     public float Speed = 0.1f;
+    public float ViewRange = 10;
+    public float Lonliness;
 
     int nextMinute = 0;
 
@@ -216,6 +223,8 @@ public class Mobile : MonoBehaviour
             Reproduction.GiveBirth(this);
             return;
         }
+
+        LookAround();
 
         if (Body.Hungry)
         {
@@ -249,6 +258,31 @@ public class Mobile : MonoBehaviour
         Destroy(gameObject, 30);
     }
 
+    void LookAround()
+    {
+        var colliders = Physics.OverlapSphere(transform.position, ViewRange);
+        List<Food> food = new List<Food>();
+        List<Mobile> mobiles = new List<Mobile>();
+
+        foreach (var col in colliders)
+        {
+            if (col.gameObject == gameObject) continue;
+
+            var f = col.GetComponent<Food>();
+            if (f != null) food.Add(f);
+
+            var m = col.GetComponent<Mobile>();
+            if (m != null) mobiles.Add(m);
+
+            OnObjectSeen(col);
+        }
+
+        foreach (var f in food)
+        {
+            f.renderer.material.color = Color.red;
+        }
+    }
+
     void Tick()
     {
         if (Body.Dead) return;
@@ -262,6 +296,8 @@ public class Mobile : MonoBehaviour
         }
 
         Reproduction.Tick(Time.deltaTime);
+
+        Lonliness += Time.deltaTime;
 
         transform.LookAt(Destination);
 
@@ -300,15 +336,30 @@ public class Mobile : MonoBehaviour
         Tick();
     }
 
-    void OnTriggerEnter(Collider col)
+    void OnObjectSeen(Collider col)
     {
         var f = col.gameObject.GetComponent<Food>();
+        if (f != null) OnFoodSeen(f);
 
-        // If this wasn't food, or there was none left, ignore it
-        if (f == null || f.FoodRemaining <= 0) return;
+        var m = col.gameObject.GetComponent<Mobile>();
+        if (m != null) OnMobileSeen(m);
+    }
+
+    void OnFoodSeen(Food f)
+    {
+        // If there is no food left, ignore it
+        if (f.FoodRemaining <= 0) return;
 
         // IF this is closer than the last food we saw, pick it
-        LastFood = Closest(LastFood, col.gameObject);
+        LastFood = Closest(LastFood, f.gameObject);
+    }
+
+    void OnMobileSeen(Mobile m)
+    {
+        if (Reproduction.IsSameSpecies(m))
+        {
+            Lonliness = 0;
+        }
     }
 
     GameObject Closest(GameObject o1, GameObject o2)

@@ -63,8 +63,13 @@ public class Body
     public bool Hungry;
     public bool Dead;
 
+    public float Age;
+    public float LifeExpectancy;
+
     public void Tick(float elapsed)
     {
+        Age += elapsed;
+
         float energyRequired = Metabolism.BurnRate * elapsed;
 
         // Digest our food
@@ -98,36 +103,59 @@ public class Body
 
 public enum Sex
 {
+    Asexual,
     Male,
-    Female,
-    Asexual
+    Female
 }
 
 [System.Serializable]
 public class Reproduction
 {
     public Sex Sex;
+    public float GestationPeriod = 30;
+    public float SeasonInterval = 120;
+    public float SeasonDuration = 30;
+
     public bool LookingForMate;
-    public float SeasonStart;
-    public float SeasonDuration;
-    public float SeasonEnd;
-    public float SeasonInterval;
+    public bool Pregnant;
+    public float DueDate;
+    public bool Due;
 
     public Color Species;
 
     public void Tick(float elapsed)
     {
-        if (Time.time >= SeasonStart)
-        {
-            LookingForMate = true;
-            SeasonEnd = Time.time + SeasonDuration;
-        }
+        Due = (Pregnant && DueDate > 0 && Time.time > DueDate);
 
-        if (Time.time >= SeasonEnd)
-        {
-            LookingForMate = false;
-            SeasonStart = Time.time + SeasonInterval;
-        }
+        if (Pregnant && DueDate == 0) DueDate = Time.time + GestationPeriod;
+
+        LookingForMate = IsMatingSeason(Time.time) && !Pregnant;
+
+        if (LookingForMate && Sex == Sex.Asexual) Pregnant = true;
+    }
+
+    public void GiveBirth(Mobile parent)
+    {
+        Pregnant = false;
+        DueDate = 0;
+        Due = false;
+
+        var baby = (Mobile)GameObject.Instantiate(parent);
+        baby.Reproduction.Species = MutateSpecies(parent.Reproduction.Species, parent.Reproduction.Species, 0.05f);
+        baby.renderer.material.color = baby.Reproduction.Species;
+        baby.Body.Stomach.Contents = parent.Body.Fat.Get(parent.Body.Fat.Contents / 2);
+        baby.Body.Fat.Contents = 0;
+        baby.Body.Age = 0;
+        baby.LastFood = null;
+        if (parent.Reproduction.Sex != Sex.Asexual) baby.Reproduction.Sex = (Sex)Random.Range(1, 2);
+    }
+
+    public bool IsMatingSeason(float time)
+    {
+        float start = Mathf.Floor(time / SeasonInterval) * SeasonInterval;
+        float end = start + SeasonDuration;
+
+        return start <= time && time < end;
     }
 
     public bool IsSuitableMate(Reproduction candidate)
@@ -150,9 +178,9 @@ public class Reproduction
 
     static Color MutateSpecies(Color s1, Color s2, float mutation)
     {
-        var r = (s1.r + s2.r) / 2;
-        var g = (s1.g + s2.g) / 2;
-        var b = (s1.b + s2.b) / 2;
+        var r = Mathf.Clamp(((s1.r + s2.r) / 2) + Random.value * mutation, 0, 1);
+        var g = Mathf.Clamp(((s1.g + s2.g) / 2) + Random.value * mutation, 0, 1);
+        var b = Mathf.Clamp(((s1.b + s2.b) / 2) + Random.value * mutation, 0, 1);
 
         return new Color(r, g, b);
     }
@@ -167,6 +195,7 @@ public class Mobile : MonoBehaviour
         Stomach = new Stomach { Capacity = 100, Contents = 0 },
         Fat = new FatReserve { Capacity = float.MaxValue, Contents = 0 },
         Metabolism = new Metabolism { FatConversionRate = 1, FoodConversionRate = 1 }
+
     };
 
     public Reproduction Reproduction = new Reproduction
@@ -176,12 +205,17 @@ public class Mobile : MonoBehaviour
     public GameObject LastFood;
     public float Speed = 0.1f;
 
-
     int nextMinute = 0;
 
     void MinuteTick()
     {
         if (Body.Dead) return;
+
+        if (Reproduction.Due)
+        {
+            Reproduction.GiveBirth(this);
+            return;
+        }
 
         if (Body.Hungry)
         {
@@ -210,7 +244,7 @@ public class Mobile : MonoBehaviour
     private void Die()
     {
         Body.Dead = true;
-        renderer.material.color = Color.black;
+        //renderer.material.color = Color.black;
         rigidbody.isKinematic = false; // So we fall over and roll down hill :)
         Destroy(gameObject, 30);
     }
@@ -221,7 +255,7 @@ public class Mobile : MonoBehaviour
 
         Body.Tick(Time.deltaTime);
 
-        if (Body.Health <= 0)
+        if (Body.Health <= 0 || Body.Age > Body.LifeExpectancy)
         {
             Die();
             return;

@@ -41,7 +41,7 @@ public class MainObject : MonoBehaviour
             m.Body.Health = rnd.Next(1, 10) * 10;
             m.Destination = RandomPosition(1f);
 
-            m.Reproduction.Sex = (Sex)rnd.Next(3);
+            m.Reproduction.Sex = Sex.Asexual; // (Sex)rnd.Next(3);
             m.Reproduction.Species = obj.renderer.material.color;
 
             mobs.Add(obj);
@@ -50,7 +50,7 @@ public class MainObject : MonoBehaviour
 
     public static Vector3 RandomPosition(float yOffset = 0f)
     {
-        int area = 1000;
+        int area = 200;
         var newPos = new Vector3(rnd.Next(-area, area), 0, rnd.Next(-area, area));
         newPos.y = Terrain.activeTerrain.SampleHeight(newPos) + yOffset;
         return newPos;

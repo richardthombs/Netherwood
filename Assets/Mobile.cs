@@ -52,7 +52,7 @@ public class Metabolism
 }
 
 [System.Serializable]
-public class Body
+public class BodyX
 {
     public float Health;
 
@@ -195,7 +195,7 @@ public class Mobile : MonoBehaviour
 {
     public Vector3 Destination;
 
-    public Body Body = new Body
+    public BodyX Body = new BodyX
     {
         Stomach = new Stomach { Capacity = 100, Contents = 0 },
         Fat = new FatReserve { Capacity = float.MaxValue, Contents = 0 },

@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class Metab : MonoBehaviour
+public class Body : MonoBehaviour
 {
     public Stomach Stomach = new Stomach();
     public FatReserve Fat = new FatReserve();

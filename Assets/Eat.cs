@@ -6,7 +6,7 @@ public class Eat : MonoBehaviour
     public float Speed;
     public Food Food;
     public Vector3 Destination;
-    Metab metabolism;
+    Body metabolism;
     Senses senses;
     Navigator nav;
 
@@ -18,7 +18,7 @@ public class Eat : MonoBehaviour
 
     void Awake()
     {
-        metabolism = GetComponent<Metab>();
+        metabolism = GetComponent<Body>();
         senses = GetComponent<Senses>();
         nav = GetComponent<Navigator>();
     }
@@ -48,11 +48,14 @@ public class Eat : MonoBehaviour
         }
         else
         {
-            if (Destination == Vector3.zero || transform.position.IsCloseTo(Destination)) Destination = MainObject.RandomPosition(1f);
-            else
-            {
-                nav.SetDestination(Destination, Speed);
-            }
+            // We do nothing, so something else can set the navigation destination,
+            // in this case, the RandomWalk.
+
+            //if (Destination == Vector3.zero || transform.position.IsCloseTo(Destination)) Destination = MainObject.RandomPosition(1f);
+            //else
+            //{
+            //    nav.SetDestination(Destination, Speed);
+            //}
         }
     }
 }

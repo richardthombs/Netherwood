@@ -44,8 +44,8 @@ public class Body : MonoBehaviour
         if (energyRequired > 0)
         {
             // If we don't have enough energy, we die
-            var death = GetComponent<Death>();
-            if (death) death.Die();
+            var reaper = GetComponent<GrimReaper>();
+            if (reaper) reaper.Die();
         }
 
         // We're hungry if our stomach is less than 25% full

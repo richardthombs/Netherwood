@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class Death : MonoBehaviour
+public class GrimReaper : MonoBehaviour
 {
     public float Age;
     public float Lifespan;

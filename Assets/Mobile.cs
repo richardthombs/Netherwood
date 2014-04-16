@@ -101,15 +101,8 @@ public class BodyX
     }
 }
 
-public enum Sex
-{
-    Asexual,
-    Male,
-    Female
-}
-
 [System.Serializable]
-public class Reproduction
+public class ReproductionX
 {
     public Sex Sex;
     public float GestationPeriod = 30;
@@ -158,7 +151,7 @@ public class Reproduction
         return start <= time && time < end;
     }
 
-    public bool IsSuitableMate(Reproduction candidate)
+    public bool IsSuitableMate(ReproductionX candidate)
     {
         if (Sex == Sex.Asexual && candidate.Sex != Sex.Asexual) return false;
         if (Sex != Sex.Asexual && candidate.Sex == Sex.Asexual) return false;
@@ -203,7 +196,7 @@ public class Mobile : MonoBehaviour
 
     };
 
-    public Reproduction Reproduction = new Reproduction
+    public ReproductionX Reproduction = new ReproductionX
     {
     };
 

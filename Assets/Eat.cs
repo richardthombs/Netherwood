@@ -1,11 +1,10 @@
 ﻿using UnityEngine;
-using System.Collections;
+using System.Collections.Generic;
 
 public class Eat : MonoBehaviour
 {
     public float Speed;
     public Food Food;
-    public Vector3 Destination;
     Body metabolism;
     Senses senses;
     Navigator nav;
@@ -45,17 +44,6 @@ public class Eat : MonoBehaviour
             {
                 nav.SetDestination(Food.transform.position, Speed);
             }
-        }
-        else
-        {
-            // We do nothing, so something else can set the navigation destination,
-            // in this case, the RandomWalk.
-
-            //if (Destination == Vector3.zero || transform.position.IsCloseTo(Destination)) Destination = MainObject.RandomPosition(1f);
-            //else
-            //{
-            //    nav.SetDestination(Destination, Speed);
-            //}
         }
     }
 }

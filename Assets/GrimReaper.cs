@@ -25,9 +25,9 @@ public class GrimReaper : MonoBehaviour
     public void Die()
     {
         Dead = true;
-        gameObject.AddComponent<Rigidbody>();
-        rigidbody.useGravity = true;
-        Destroy(gameObject, 30f);
+        //gameObject.AddComponent<Rigidbody>();
+        //rigidbody.useGravity = true;
+        Destroy(gameObject, 1f);
 
         var components = GetComponents<MonoBehaviour>();
         foreach (var c in components)

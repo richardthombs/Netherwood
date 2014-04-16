@@ -4,6 +4,8 @@ using System.Collections.Generic;
 public class Senses : MonoBehaviour
 {
     public List<Food> Food = new List<Food>();
+    public List<GameObject> Mobiles = new List<GameObject>();
+
     public float LookInterval = 1;
     public float ViewRange = 20;
     public float nextLook;
@@ -27,8 +29,10 @@ public class Senses : MonoBehaviour
 
     void Look()
     {
-        var colliders = Physics.OverlapSphere(transform.position, ViewRange);
         Food = new List<Food>();
+        Mobiles = new List<GameObject>();
+
+        var colliders = Physics.OverlapSphere(transform.position, ViewRange);
 
         foreach (var col in colliders)
         {
@@ -36,8 +40,11 @@ public class Senses : MonoBehaviour
 
             var f = col.GetComponent<Food>();
             if (f != null) Food.Add(f);
+
+            var m = col.GetComponent<Navigator>();
+            if (m != null) Mobiles.Add(m.gameObject);
         }
 
-       Food.ForEach(x => x.renderer.material.color = Color.red);
+        Food.Sort((a, b) => { float da = Vector3.Distance(a.transform.position, transform.position), db = Vector3.Distance(b.transform.position, transform.position); return da.CompareTo(db); });
     }
 }

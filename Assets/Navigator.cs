@@ -24,6 +24,12 @@ public class Navigator : MonoBehaviour
         alreadySet = false;
     }
 
+    public void StayStill()
+    {
+        alreadySet = true;
+        Destination = Vector3.zero;
+    }
+
     public void SetDestination(Vector3 destination, float speed)
     {
         if (alreadySet) return;

@@ -14,7 +14,12 @@ public class MainObject : MonoBehaviour
     // Use this for initialization
     void Start()
     {
-        var mobPrefab = GameObject.Find("Capsule");
+        var mobPrefab = GameObject.Find("Female");
+        var mobRepro = mobPrefab.GetComponent<Reproduction>();
+        mobRepro.Sex = Sex.Female;
+        mobRepro.Pregnant = true;
+        mobRepro.LitterSize = 4;
+
         if (mobPrefab != null) CloneMob(mobPrefab, MobCount - 1);
 
         var foodPrefab = GameObject.Find("Food");
@@ -24,7 +29,7 @@ public class MainObject : MonoBehaviour
             obj.transform.position = RandomPosition(0);
 
             var f = obj.GetComponent<Food>();
-            f.FoodRemaining = rnd.Next(1, 10) * 10;
+            f.FoodRemaining = rnd.Next(1, 10) * 100;
 
             food.Add(obj);
         }
@@ -34,21 +39,19 @@ public class MainObject : MonoBehaviour
     {
         for (int i = 0; i < count; i++)
         {
-            var obj = (GameObject)Instantiate(mobPrefab);
-            obj.transform.position = RandomPosition(1f);
-            obj.renderer.material.color = new Color((float)rnd.NextDouble(), (float)rnd.NextDouble(), (float)rnd.NextDouble());
+            var clone = (GameObject)Instantiate(mobPrefab);
+            //clone.transform.position = RandomPosition(1f);
 
-            var m = obj.GetComponent<Mobile>();
+            var m = clone.GetComponent<Reproduction>();
             if (m != null)
             {
-                m.Body.Health = rnd.Next(1, 10) * 10;
-                m.Destination = RandomPosition(1f);
-
-                m.Reproduction.Sex = Sex.Asexual; // (Sex)rnd.Next(3);
-                m.Reproduction.Species = obj.renderer.material.color;
+                m.Species = new Color((float)rnd.NextDouble(), (float)rnd.NextDouble(), (float)rnd.NextDouble());
+                clone.renderer.material.color = m.Species;
+                m.Father = m;
+                m.Pregnant = true;
             }
 
-            mobs.Add(obj);
+            mobs.Add(clone);
         }
     }
 

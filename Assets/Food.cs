@@ -3,7 +3,6 @@ using System.Collections;
 
 public class Food : MonoBehaviour
 {
-
     public float FoodRemaining;
 
 	// Use this for initialization

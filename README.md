@@ -1,4 +1,4 @@
 Netherwood
 ==========
 
-[File 1](File 1.md)
+[File 1](File 1)

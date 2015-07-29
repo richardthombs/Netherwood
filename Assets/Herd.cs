@@ -3,6 +3,61 @@ using System.Collections.Generic;
 
 public class Herd : MonoBehaviour
 {
+    public float TooFar = 10;
+    public float TooClose = 4;
+    public float Speed = 7;
+    public GameObject Target;
+
+    Navigator nav;
+    Senses senses;
+
+    void Awake()
+    {
+        nav = GetComponent<Navigator>();
+        senses = GetComponent<Senses>();
+    }
+
+    void Update()
+    {
+        if (Target != null)
+        {
+            if (Target.transform.position.DistanceTo(transform.position) < TooClose)
+            {
+                Target = null;
+            }
+            else
+            {
+                nav.SetDestination(Target.transform.position, Speed);
+            }
+        }
+        else
+        {
+            var herd = GetVisibleHerd();
+            if (herd.Count == 0) return;
+
+            if (!herd.Exists(x => x.transform.position.DistanceTo(transform.position) < 10))
+            {
+                herd.Sort((a, b) => { float da = a.transform.position.DistanceTo(transform.position), db = b.transform.position.DistanceTo(transform.position); return da.CompareTo(db); });
+                Target = herd[0];
+            }
+        }
+    }
+
+    List<GameObject> GetVisibleHerd()
+    {
+        // Get a list of other herd members we can see
+        var me = GetComponent<Reproduction>();
+        List<GameObject> nearby = senses.Mobiles.FindAll(go =>
+        {
+            var r = go.GetComponent<Reproduction>();
+            return r != null && me != null && me.IsSameSpecies(r);
+        });
+        return nearby;
+    }
+}
+
+public class Herdx : MonoBehaviour
+{
     public Vector3 LastKnownPosition;
     public float Speed = 7;
     public bool Lonely;

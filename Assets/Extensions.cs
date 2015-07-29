@@ -3,6 +3,11 @@ using System.Collections;
 
 public static class Vector3Extensions
 {
+    public static float DistanceTo(this Vector3 me, Vector3 position)
+    {
+        return Vector3.Distance(me, position);
+    }
+
     public static bool IsCloseTo(this Vector3 me, Vector3 position)
     {
         return (Vector3.Distance(me, position) < 1.5f);

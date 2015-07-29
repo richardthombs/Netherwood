@@ -97,17 +97,11 @@ public class Reproduction : MonoBehaviour
 
     void LookForMate()
     {
-        Mate = null;
-        foreach (var m in senses.Mobiles)
-        {
-            var r = m.GetComponent<Reproduction>();
+        var mates = senses.Mobiles.FindAll(x => { var r = x.GetComponent<Reproduction>(); return r != null && IsSuitableMate(r); });
+        mates.Sort((a, b) => { float da = Vector3.Distance(a.transform.position, transform.position), db = Vector3.Distance(b.transform.position, transform.position); return da.CompareTo(db); });
 
-            if (r != null && IsSuitableMate(r))
-            {
-                Mate = r;
-                break;
-            }
-        }
+        if (mates.Count > 0) Mate = mates[0].GetComponent<Reproduction>();
+        else Mate = null;
     }
 
     void GiveBirth()
